@@ -1,11 +1,46 @@
-/* 
+/* Input estilo TODO clásico */
+.todo-input {
+  font-size: 1.2rem;
+  padding: 1rem;
+}
 
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+.todo-input:focus {
+  box-shadow: none;
+}
 
-*/
+/* Items de la lista */
+.todo-item {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Botón eliminar oculto por defecto */
+.delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Mostrar botón solo en hover */
+.todo-item:hover .delete-btn {
+  opacity: 1;
+}
+
+/* Texto de tarea */
+.todo-text {
+  word-break: break-word;
+}
+
+/* Mensaje cuando no hay tareas */
+.no-tasks {
+  font-style: italic;
+  text-align: center;
+}
+
+/* Footer más sutil */
+.card-footer {
+  padding: 0.5rem 1rem;
+}
+.card-footer .task-count {
+  font-size: 0.9rem;
+  color: #666;
+}
