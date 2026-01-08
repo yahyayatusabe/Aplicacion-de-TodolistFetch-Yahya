@@ -1,28 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export const Home = () => {
-  const [todos, setTodos] = useState([
-    { done: false, title: "Hacer la cama", id: Math.random() * 10 },
-    { done: false, title: "Lavarme las manos", id: Math.random() * 10 },
-    { done: false, title: "Comer", id: Math.random() * 10 },
-    { done: false, title: "Pasear al perro", id: Math.random() * 10 },
-  ]);
+  const API_URL = "https://playground.4geeks.com/todo";
+  const USERNAME = "yahya";
+
+  const createUser = async () => {
+    const response = await fetch(`${API_URL}/users/${USERNAME}`);
+    if (response.status === 404) {
+      await fetch(`${API_URL}/users/${USERNAME}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  };
+  const loadTodos = async () => {
+    const response = await fetch(`${API_URL}/users/${USERNAME}`);
+    const data = await response.json();
+
+    if (data.todos) {
+      setTodos(data.todos);
+    } else {
+      setTodos([]);
+    }
+  };
+
+  useEffect(() => {
+    createUser().then(loadTodos);
+  }, []);
+
+  const [todos, setTodos] = useState([]);
 
   const [taskInput, setTaskInput] = useState("");
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (taskInput.trim() === "") return;
 
-    setTodos([
-      ...todos,
-      { title: taskInput, done: false, id: Math.random() * 10 },
-    ]);
+    await fetch(`${API_URL}/todos/${USERNAME}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        label: taskInput,
+        is_done: false,
+      }),
+    });
+
     setTaskInput("");
+    loadTodos();
   };
 
-  const deleteTask = (taskId) => {
-    setTodos(todos.filter((task) => task.id !== taskId));
+  const deleteTask = async (taskId) => {
+    await fetch(`${API_URL}/todos/${taskId}`, {
+      method: "DELETE",
+    });
+
+    loadTodos();
+  };
+
+  const clearAllTodos = async () => {
+    await fetch(`${API_URL}/users/${USERNAME}`, {
+      method: "DELETE",
+    });
+    setTodos([]);
   };
 
   return (
@@ -54,19 +93,23 @@ export const Home = () => {
                 {todos.map((task) => (
                   <li
                     key={task.id}
-                    className="list-group-item d-flex justify-content-between align-items-center todo-item"
+                    className="list-group-item d-flex justify-content-between"
                   >
-                    <span className="todo-text">{task.title}</span>
-                    <button
-                      className="btn btn-sm btn-danger delete-btn"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      ✖
-                    </button>
+                    <span>{task.label}</span>
+                    <button onClick={() => deleteTask(task.id)}>✖</button>
                   </li>
                 ))}
               </ul>
-
+              <div className="card-footer bg-white text-muted small">
+                <div className="px-3 py-2">
+                  <button
+                    className="btn btn-outline-danger btn-sm w-100"
+                    onClick={clearAllTodos}
+                  >
+                    Borrar todas las tareas
+                  </button>
+                </div>
+              </div>
               <div className="card-footer bg-white text-muted small">
                 {todos.length} tareas pendientes
               </div>
